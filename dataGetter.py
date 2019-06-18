@@ -40,12 +40,12 @@ def getPrice(url):
     rawData = str(soupData)[str(soupData).find('afiseazaGrafic5Ani'):]
 
     data = str(rawData)[str(rawData).find('columns'):str(rawData).find('types')]
-    dates = data[str(data).find('x')+4:str(data).find("['Close price")].replace("'", "").replace("\t", "").replace("\n", "").replace("\r", "")[:-2]
+    dates = data[str(data).find('x')+4:str(data).find("['Close price")].replace("'", "").replace("\t", "").replace("\n", "").replace("\r", "").replace(" ", "")[:-2]
     goodDates = dates.split(",")
 
-    prices = str(rawData)[str(rawData).find('Close price')+14:str(rawData).find('types')].replace("\t", "").replace("\n", "").replace("\r", "").replace("'", "").replace(" ", "").replace("]","")[:-2]
+    prices = str(rawData)[str(rawData).find('Close price')+14:str(rawData).find('types')].replace("\t", "").replace("\n", "").replace("\r", "").replace("'", "").replace(" ", "").replace("]","")
     goodPrices =  prices.split(",")
-    goodPrices = [float(i) for i in goodPrices]
+    goodPrices = [float(i) for i in goodPrices[:-1]]
 
     dict_ = {'Dates': goodDates, 'Prices': goodPrices}
     print(len(dict_['Dates']), len(dict_['Prices']))
@@ -96,3 +96,29 @@ for ticker in TICKERS[:3]:
     print(f"Getting price for {ticker} from {url}")
     dictList[ticker] = getPrice(url)
 
+
+
+URL = 'https://www.primet.ro/informatii-piata-cotatii-bursa?simbol='
+
+TICKERS = getStockSymbols(URL+'bvb', False)
+
+url = URL + TICKERS[0]
+def test(url):
+    htmlContent = getHTMLContent(url)
+    soup = BeautifulSoup(htmlContent, 'html.parser')
+    soupData = soup.find_all('script', text=re.compile('afiseazaGrafic5Ani'))
+    rawData = str(soupData)[str(soupData).find('afiseazaGrafic5Ani'):]
+
+    data = str(rawData)[str(rawData).find('columns'):str(rawData).find('types')]
+    dates = data[str(data).find('x')+4:str(data).find("['Close price")].replace("'", "").replace("\t", "").replace("\n", "").replace("\r", "").replace(" ", "")[:-2]
+    goodDates = dates.split(",")
+
+    prices = str(rawData)[str(rawData).find('Close price')+14:str(rawData).find('types')].replace("\t", "").replace("\n", "").replace("\r", "").replace("'", "").replace(" ", "").replace("]","")
+    goodPrices =  prices.split(",")
+    goodPrices = [float(i) for i in goodPrices[:-1]]
+
+    dict_ = {'Dates': goodDates, 'Prices': goodPrices}
+    print(len(dict_['Dates']), len(dict_['Prices']))
+
+test(URL + TICKERS[0])
+test(URL + TICKERS[1])
