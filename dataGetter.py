@@ -96,24 +96,3 @@ for ticker in TICKERS[:3]:
     print(f"Getting price for {ticker} from {url}")
     dictList[ticker] = getPrice(url)
 
-
-
-url = URL + TICKERS[0]
-
-htmlContent = getHTMLContent(url)
-soup = BeautifulSoup(htmlContent, 'html.parser')
-soupData = soup.find_all('script', text=re.compile('afiseazaGrafic5Ani'))
-rawData = str(soupData)[str(soupData).find('afiseazaGrafic5Ani'):]
-
-data = str(rawData)[str(rawData).find('columns'):str(rawData).find('types')]
-dates = data[str(data).find('x')+4:str(data).find("['Close price")].replace("'", "").replace("\t", "").replace("\n", "").replace("\r", "")[:-2]
-goodDates = dates.split(",")
-
-prices = str(rawData)[str(rawData).find('Close price')+14:str(rawData).find('types')].replace("\t", "").replace("\n", "").replace("\r", "").replace("'", "").replace(" ", "").replace("]","")[:-2]
-goodPrices =  prices.split(",")
-goodPrices = [float(i) for i in goodPrices]
-
-dict_ = {'Dates': goodDates, 'Prices': goodPrices}
-print(len(dict_['Dates']), len(dict_['Prices']))
-print(goodPrices)
-print(dict_['Prices'])
