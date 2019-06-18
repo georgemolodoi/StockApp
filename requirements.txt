@@ -1,0 +1,6 @@
+pandas
+numpy
+scrapy
+requests
+BeautifulSoup4
+lxml
