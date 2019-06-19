@@ -96,7 +96,7 @@ if __name__ == "__main__":
         print(f"Got {len(dictList[ticker]['Prices'])} prices for {ticker}.")
 
     # log Error
-        if len(dictList[ticker]['Dates']) != len(dictList[ticker]['Prices']) or len(dictList[ticker]['Prices'] == 0 :
+        if len(dictList[ticker]['Dates']) != len(dictList[ticker]['Prices']) or len(dictList[ticker]['Prices']) == 0 :
             print(f"Length of dates and prices do no match for {ticker} !!!")
             with open ('logError.csv', 'a', newline='') as f:
                 writer = csv.DictWriter(f)
