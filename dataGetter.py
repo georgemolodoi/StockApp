@@ -3,7 +3,7 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 from datetime import datetime
-import json, re, pandas as pd
+import json, re, csv
 
 
 def getHTMLContent(url):
@@ -45,10 +45,14 @@ def getPrice(url):
 
     prices = str(rawData)[str(rawData).find('Close price')+14:str(rawData).find('types')].replace("\t", "").replace("\n", "").replace("\r", "").replace("'", "").replace(" ", "").replace("]","")
     goodPrices =  prices.split(",")
-    goodPrices = [float(i) for i in goodPrices[:-1]]
+    try: 
+        goodPrices = [float(i) for i in goodPrices[:-1]]
+    
+    except ValueError:
+        dict_ = {}
 
     dict_ = {'Dates': goodDates, 'Prices': goodPrices}
-    print(len(dict_['Dates']), len(dict_['Prices']))
+
     return(dict_)
 
 def getStockSymbols(url, save=True):
@@ -81,44 +85,25 @@ def getStockSymbols(url, save=True):
     
 
 if __name__ == "__main__":
-    URL = 'https://www.primet.ro/informatii-piata-cotatii-bursa?simbol=bvb'
-    print(getStockSymbols(URL, False))
+    URL = 'https://www.primet.ro/informatii-piata-cotatii-bursa?simbol='
+    TICKERS = getStockSymbols(URL+'bvb', False)
+
+    dictList = {}
+    for ticker in TICKERS[:]:
+        url = URL + ticker
+        dictList[ticker] = getPrice(url)
+
+        print(f"Got {len(dictList[ticker]['Prices'])} prices for {ticker}.")
+
+    # log Error
+        if len(dictList[ticker]['Dates']) != len(dictList[ticker]['Prices']) or len(dictList[ticker]['Prices'] == 0 :
+            print(f"Length of dates and prices do no match for {ticker} !!!")
+            with open ('logError.csv', 'a', newline='') as f:
+                writer = csv.DictWriter(f)
+                writer.writerow(ticker)
+         
+
+    with open('stockData.json', 'w') as jsonFile:
+        json.dump(dictList, jsonFile)
 
 
-URL = 'https://www.primet.ro/informatii-piata-cotatii-bursa?simbol='
-
-TICKERS = getStockSymbols(URL+'bvb', False)
-
-
-dictList = {}
-for ticker in TICKERS[:3]:
-    url = URL + ticker
-    print(f"Getting price for {ticker} from {url}")
-    dictList[ticker] = getPrice(url)
-
-
-
-URL = 'https://www.primet.ro/informatii-piata-cotatii-bursa?simbol='
-
-TICKERS = getStockSymbols(URL+'bvb', False)
-
-url = URL + TICKERS[0]
-def test(url):
-    htmlContent = getHTMLContent(url)
-    soup = BeautifulSoup(htmlContent, 'html.parser')
-    soupData = soup.find_all('script', text=re.compile('afiseazaGrafic5Ani'))
-    rawData = str(soupData)[str(soupData).find('afiseazaGrafic5Ani'):]
-
-    data = str(rawData)[str(rawData).find('columns'):str(rawData).find('types')]
-    dates = data[str(data).find('x')+4:str(data).find("['Close price")].replace("'", "").replace("\t", "").replace("\n", "").replace("\r", "").replace(" ", "")[:-2]
-    goodDates = dates.split(",")
-
-    prices = str(rawData)[str(rawData).find('Close price')+14:str(rawData).find('types')].replace("\t", "").replace("\n", "").replace("\r", "").replace("'", "").replace(" ", "").replace("]","")
-    goodPrices =  prices.split(",")
-    goodPrices = [float(i) for i in goodPrices[:-1]]
-
-    dict_ = {'Dates': goodDates, 'Prices': goodPrices}
-    print(len(dict_['Dates']), len(dict_['Prices']))
-
-test(URL + TICKERS[0])
-test(URL + TICKERS[1])
