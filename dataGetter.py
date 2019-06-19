@@ -89,21 +89,22 @@ if __name__ == "__main__":
     TICKERS = getStockSymbols(URL+'bvb', False)
 
     dictList = {}
+    tickerError = []
     for ticker in TICKERS[:]:
         url = URL + ticker
         dictList[ticker] = getPrice(url)
 
         print(f"Got {len(dictList[ticker]['Prices'])} prices for {ticker}.")
 
-    # log Error
+    # Save tickers that throw an error 
         if len(dictList[ticker]['Dates']) != len(dictList[ticker]['Prices']) or len(dictList[ticker]['Prices']) == 0 :
             print(f"Length of dates and prices do no match for {ticker} !!!")
-            with open ('logError.csv', 'a', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(ticker)
-         
+            tickerError.append(ticker)
+ 
 
     with open('stockData.json', 'w') as jsonFile:
         json.dump(dictList, jsonFile)
 
-
+    with open ('tickerError.csv', 'w', newline='') as f:
+        writer = csv.writer(f, delimiter =';')
+        writer.writerow(tickerError)
