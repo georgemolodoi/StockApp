@@ -108,3 +108,4 @@ if __name__ == "__main__":
     with open ('tickerError.csv', 'w', newline='') as f:
         writer = csv.writer(f, delimiter =';')
         writer.writerow(tickerError)
+
